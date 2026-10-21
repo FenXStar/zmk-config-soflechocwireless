@@ -1,0 +1,14 @@
+file_format: "1"
+id: sofle
+name: Sofle
+type: shield
+url: https://github.com/josefadamcik/SofleKeyboard
+requires: [nice_nano_v2]
+features:
+  - keys
+  - encoders
+  - oled
+siblings:
+  - sofle_dongle
+  - sofle_left
+  - sofle_right
