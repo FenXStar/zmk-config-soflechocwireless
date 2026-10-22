@@ -7,6 +7,9 @@ manifest:
   projects:
     - name: zmk
       remote: zmkfirmware
+      # NOTE: the prospector-zmk-module branch used below only supports the
+      # Zephyr 4.1 based ZMK main. If main breaks, switch prospector-zmk-module
+      # to its main branch and pin zmk to a tag (e.g. revision: v0.3.1).
       revision: main
       import: app/west.yml
     - name: prospector-zmk-module

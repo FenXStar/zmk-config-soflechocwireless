@@ -14,8 +14,15 @@
 ---
 include:
   - board: nice_nano//zmk
-    shield: sofle_left
+    shield: soflechoc_left
   - board: nice_nano//zmk
-    shield: sofle_right
+    shield: soflechoc_right
   - board: xiao_ble//zmk
-    shield: sofle_dongle prospector_adapter
+    shield: soflechoc_dongle prospector_adapter
+    snippet: studio-rpc-usb-uart
+  - board: nice_nano//zmk
+    shield: settings_reset
+    artifact-name: soflechoc_settings_reset_nice_nano
+  - board: xiao_ble//zmk
+    shield: settings_reset
+    artifact-name: soflechoc_settings_reset_xiao

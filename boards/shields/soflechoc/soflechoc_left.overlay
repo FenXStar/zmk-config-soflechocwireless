@@ -1,4 +1,12 @@
-#include "sofle.dtsi"
+#include "soflechoc.dtsi"
+
+/ {
+    chosen {
+        zephyr,display = &oled;
+        zmk,kscan = &kscan0;
+        zmk,physical-layout = &josefadamcik_sofle_layout;
+    };
+};
 
 &kscan0 {
     col-gpios

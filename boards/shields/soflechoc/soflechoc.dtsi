@@ -1,3 +1,17 @@
+/*
+ * Sofle Choc (PandaKB) shield for ZMK — nice!nano halves + XIAO/Prospector dongle
+ *
+ * Based on the in-tree ZMK sofle shield, adapted for the Sofle Choc Wireless:
+ * - matrix 5 rows x 6 cols per half (COL2ROW), rows on D5..D9
+ * - OLED SSD1306 128x32 on I2C
+ * - WS2812 per-key RGB via SPI3 (D0/P0.08 on the nice!nano), 30 LEDs per half
+ * - EC11 rotary encoders (D21/D20 on the left half, D20/D21 on the right)
+ *
+ * This base file is shared by all three builds. The keyboard-only pieces
+ * (key matrix, OLED, physical layout) are added by the half overlays, so the
+ * dongle build stays clean (Prospector brings its own ST7789 display).
+ */
+
 #include <dt-bindings/zmk/matrix_transform.h>
 #include <dt-bindings/led/led.h>
 #include <layouts/josefadamcik/sofle.dtsi>
@@ -8,17 +22,14 @@
 
 / {
     chosen {
-        zephyr,display = &oled;
-        zmk,kscan = &kscan0;
         zmk,underglow = &led_strip;
-        zmk,physical-layout = &josefadamcik_sofle_layout;
     };
 
     default_transform: keymap_transform_0 {
         compatible = "zmk,matrix-transform";
         columns = <12>;
         rows = <5>;
-        
+
 // | SW6  | SW5  | SW4  | SW3  | SW2  | SW1  |                 | SW1  | SW2  | SW3  | SW4  | SW5  | SW6  |
 // | SW12 | SW11 | SW10 | SW9  | SW8  | SW7  |                 | SW7  | SW8  | SW9  | SW10 | SW11 | SW12 |
 // | SW18 | SW17 | SW16 | SW15 | SW14 | SW13 |                 | SW13 | SW14 | SW15 | SW16 | SW17 | SW18 |
@@ -37,22 +48,13 @@
         compatible = "zmk,kscan-gpio-matrix";
         wakeup-source;
         diode-direction = "col2row";
-        
+
         row-gpios
             = <&pro_micro 5 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
             , <&pro_micro 6 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
             , <&pro_micro 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
             , <&pro_micro 8 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
             , <&pro_micro 9 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
-            ;
-            
-        col-gpios
-            = <&pro_micro 15 (GPIO_ACTIVE_HIGH)>
-            , <&pro_micro 14 (GPIO_ACTIVE_HIGH)>
-            , <&pro_micro 16 (GPIO_ACTIVE_HIGH)>
-            , <&pro_micro 10 (GPIO_ACTIVE_HIGH)>
-            , <&pro_micro 1  (GPIO_ACTIVE_HIGH)>
-            , <&pro_micro 0  (GPIO_ACTIVE_HIGH)>
             ;
     };
 
@@ -61,7 +63,7 @@
         a-gpios = <&pro_micro 21 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
         b-gpios = <&pro_micro 20 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
         steps = <40>;
-        status = "okay";
+        status = "disabled";
     };
 
     right_encoder: encoder_right {
@@ -69,7 +71,7 @@
         a-gpios = <&pro_micro 20 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
         b-gpios = <&pro_micro 21 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
         steps = <40>;
-        status = "okay";
+        status = "disabled";
     };
 
     sensors: sensors {
@@ -77,16 +79,49 @@
         sensors = <&left_encoder &right_encoder>;
         triggers-per-rotation = <20>;
     };
+};
 
-    led_strip: ws2812@0 {
-        compatible = "worldsemi,ws2812";
-        gpio = <&pro_micro 3 (GPIO_ACTIVE_HIGH)>;
-        chain-length = <29>;
-        color-mapping = <LED_COLOR_ID_GREEN LED_COLOR_ID_RED LED_COLOR_ID_BLUE>;
-        status = "okay";
+/*
+ * WS2812 data line of the Sofle Choc Wireless is wired to the Arduino D0 pin
+ * of the nice!nano (P0.08) — P0.06 is the nice!view CS on this PCB, do not
+ * use it. Bit-banged GPIO WS2812 is unreliable on nRF52, so drive it through
+ * SPI3 (same approach as the in-tree sofle shield for nice!nano).
+ */
+&pinctrl {
+    spi3_default: spi3_default {
+        group1 {
+            psels = <NRF_PSEL(SPIM_MOSI, 0, 8)>;
+        };
+    };
+
+    spi3_sleep: spi3_sleep {
+        group1 {
+            psels = <NRF_PSEL(SPIM_MOSI, 0, 8)>;
+            low-power-enable;
+        };
     };
 };
 
+&spi3 {
+    compatible = "nordic,nrf-spim";
+    status = "okay";
+
+    pinctrl-0 = <&spi3_default>;
+    pinctrl-1 = <&spi3_sleep>;
+    pinctrl-names = "default", "sleep";
+
+    led_strip: ws2812@0 {
+        compatible = "worldsemi,ws2812-spi";
+        reg = <0>; /* ignored, but necessary for SPI bindings */
+        spi-max-frequency = <4000000>;
+        chain-length = <30>; /* 30 LEDs per half (incl. LED under the encoder) */
+        spi-one-frame = <0x70>;
+        spi-zero-frame = <0x40>;
+        color-mapping = <LED_COLOR_ID_GREEN LED_COLOR_ID_RED LED_COLOR_ID_BLUE>;
+    };
+};
+
+/* SSD1306 OLED on the pro micro I2C bus; referenced by the half overlays */
 &pro_micro_i2c {
     status = "okay";
     oled: ssd1306@3c {

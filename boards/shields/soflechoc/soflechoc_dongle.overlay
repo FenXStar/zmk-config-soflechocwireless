@@ -1,0 +1,20 @@
+/*
+ * Dongle build: a keyboard-less central that runs on the Prospector
+ * (XIAO nRF52840 + ST7789 screen). It talks to both halves over BLE and
+ * does not need the key matrix, OLEDs or underglow from soflechoc.dtsi;
+ * those live on the halves. The Prospector screen itself is added by the
+ * prospector_adapter shield from carrefinho/prospector-zmk-module.
+ */
+
+/ {
+    chosen {
+        zmk,kscan = &mock_kscan;
+    };
+
+    mock_kscan: kscan_1 {
+        compatible = "zmk,kscan-mock";
+        columns = <0>;
+        rows = <0>;
+        events = <0>;
+    };
+};

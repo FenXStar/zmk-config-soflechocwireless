@@ -1,0 +1,14 @@
+file_format: "1"
+id: soflechoc
+name: Sofle Choc (PandaKB)
+url: https://github.com/josefadamcik/SofleKeyboard
+type: shield
+features:
+  - keys
+  - encoders
+  - display
+  - underglow
+siblings:
+  - soflechoc_left
+  - soflechoc_right
+  - soflechoc_dongle
