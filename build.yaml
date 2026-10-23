@@ -2,8 +2,10 @@
 #
 # Firmware variants (see each artifact zip before flashing!):
 #
-# PRIMARY SETUP (use the Prospector dongle as the radio/central):
-#   - soflechoc_left / soflechoc_right : both halves are BLE peripherals
+# Primary setup (Prospector = the radio/central; see also the nice_oled screen module in west.yml):
+#   - soflechoc_left / soflechoc_right : both halves are BLE peripherals,
+#     OLED shows the nice_oled peripheral screen (battery + crystal animation;
+#     switch to pokemon/spaceman via cmake-args in the include below)
 #   - soflechoc_dongle_prospector      : Prospector = the only central/USB-HID
 #
 # FALLBACK 1 — no dongle at all:
@@ -19,10 +21,13 @@
 ---
 include:
   # ---- primary: Prospector dongle is the central ----
+  # nice_oled = zzuse/zmk-nice-oled-zz screen for the 128x32 SSD1306 (see west.yml)
   - board: nice_nano//zmk
-    shield: soflechoc_left
+    shield: soflechoc_left nice_oled
+    cmake-args: -DCONFIG_NICE_OLED_PERIPHERAL_CRYSTAL=y
   - board: nice_nano//zmk
-    shield: soflechoc_right
+    shield: soflechoc_right nice_oled
+    cmake-args: -DCONFIG_NICE_OLED_POKEMON_ANIMATION=y
   - board: xiao_ble//zmk
     shield: soflechoc_dongle prospector_adapter
     snippet: studio-rpc-usb-uart
@@ -30,8 +35,9 @@ include:
     artifact-name: soflechoc_dongle_prospector
 
   # ---- fallback 1: left half as central (USB/BLE direct, no dongle) ----
+  # no PERIPHERAL_CRYSTAL here: as the central it shows the full Luna/WPM screen
   - board: nice_nano//zmk
-    shield: soflechoc_left
+    shield: soflechoc_left nice_oled
     snippet: studio-rpc-usb-uart
     cmake-args: -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=y
     artifact-name: soflechoc_left_central

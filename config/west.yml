@@ -4,6 +4,8 @@ manifest:
       url-base: https://github.com/zmkfirmware
     - name: carrefinho
       url-base: https://github.com/carrefinho
+    - name: zzuse
+      url-base: https://github.com/zzuse
   projects:
     - name: zmk
       remote: zmkfirmware
@@ -15,5 +17,11 @@ manifest:
     - name: prospector-zmk-module
       remote: carrefinho
       revision: feat/new-status-screens
+    # Rich OLED (128x32 SSD1306) status screens for the halves: layer/battery/
+    # output/modifier widgets, Luna WPM widget (central), crystal/pokemon
+    # animations (peripheral). Its main branch tracks current ZMK main.
+    - name: zmk-nice-oled-zz
+      remote: zzuse
+      revision: main
   self:
     path: config
