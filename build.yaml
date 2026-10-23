@@ -1,18 +1,24 @@
-# This file generates the GitHub Actions matrix
-# For simple board + shield combinations, add them
-# to the top level board and shield arrays, for more
-# control, add individual board + shield combinations to
-# the `include` property, e.g:
+# This file generates the GitHub Actions matrix.
 #
-# board: [ "nice_nano_v2" ]
-# shield: [ "corne_left", "corne_right" ]
-# include:
-#   - board: bdn9_rev2
-#   - board: nice_nano_v2
-#     shield: reviung41
+# Firmware variants (see each artifact zip before flashing!):
 #
+# PRIMARY SETUP (use the Prospector dongle as the radio/central):
+#   - soflechoc_left / soflechoc_right : both halves are BLE peripherals
+#   - soflechoc_dongle_prospector      : Prospector = the only central/USB-HID
+#
+# FALLBACK 1 — no dongle at all:
+#   - soflechoc_left_central : left half becomes the central; plug its USB-C
+#     into the PC (or use its Bluetooth directly), right half pairs to it.
+#     Flash this instead of soflechoc_left. Do NOT run it together with a
+#     dongle firmware — two centrals cannot coexist.
+#
+# FALLBACK 2 — Prospector broken / spare cheap dongle:
+#   - soflechoc_dongle_xiao / soflechoc_dongle_nice_nano : same central
+#     firmware without the screen module, for a bare XIAO nRF52840 or
+#     nice!nano dongle. Halves are unchanged (peripheral firmware).
 ---
 include:
+  # ---- primary: Prospector dongle is the central ----
   - board: nice_nano//zmk
     shield: soflechoc_left
   - board: nice_nano//zmk
@@ -20,6 +26,27 @@ include:
   - board: xiao_ble//zmk
     shield: soflechoc_dongle prospector_adapter
     snippet: studio-rpc-usb-uart
+    cmake-args: -DCONFIG_PROSPECTOR_STATUS_SCREEN_RADII=y -DCONFIG_PROSPECTOR_USE_AMBIENT_LIGHT_SENSOR=n -DCONFIG_PROSPECTOR_FIXED_BRIGHTNESS=80 -DCONFIG_LV_Z_VDB_SIZE=25
+    artifact-name: soflechoc_dongle_prospector
+
+  # ---- fallback 1: left half as central (USB/BLE direct, no dongle) ----
+  - board: nice_nano//zmk
+    shield: soflechoc_left
+    snippet: studio-rpc-usb-uart
+    cmake-args: -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=y
+    artifact-name: soflechoc_left_central
+
+  # ---- fallback 2: plain dongles (no screen) ----
+  - board: xiao_ble//zmk
+    shield: soflechoc_dongle
+    snippet: studio-rpc-usb-uart
+    artifact-name: soflechoc_dongle_xiao
+  - board: nice_nano//zmk
+    shield: soflechoc_dongle
+    snippet: studio-rpc-usb-uart
+    artifact-name: soflechoc_dongle_nice_nano
+
+  # ---- factory-reset images ----
   - board: nice_nano//zmk
     shield: settings_reset
     artifact-name: soflechoc_settings_reset_nice_nano
