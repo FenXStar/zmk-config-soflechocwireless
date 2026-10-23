@@ -66,28 +66,36 @@
  * real zmk,underglow chosen node to compile, even though the dongle has no
  * LEDs. RGB_TOG/HUE/EFF (global-locality behaviors) are forwarded to the
  * halves' real LED strips.
+ *
+ * SPI instance choice on XIAO nRF52840: instance 1 is TWIM1/i2c1 (enabled
+ * by the board and used by the Prospector APDS-9960), instance 2 is
+ * disabled by the Prospector adapter overlay, instance 3 drives the ST7789
+ * screen. SPI0 is the only free one; its pins go to the unbonded NFC pads
+ * (P0.02/P0.03), which nothing else uses.
  */
 &pinctrl {
-    spi1_default: spi1_default {
+    spi0_default: spi0_default {
         group1 {
-            psels = <NRF_PSEL(SPIM_MOSI, 0, 2)>;
+            psels = <NRF_PSEL(SPIM_SCK, 0, 3)>,
+                    <NRF_PSEL(SPIM_MOSI, 0, 2)>;
         };
     };
 
-    spi1_sleep: spi1_sleep {
+    spi0_sleep: spi0_sleep {
         group1 {
-            psels = <NRF_PSEL(SPIM_MOSI, 0, 2)>;
+            psels = <NRF_PSEL(SPIM_SCK, 0, 3)>,
+                    <NRF_PSEL(SPIM_MOSI, 0, 2)>;
             low-power-enable;
         };
     };
 };
 
-&spi1 {
+&spi0 {
     compatible = "nordic,nrf-spim";
     status = "okay";
 
-    pinctrl-0 = <&spi1_default>;
-    pinctrl-1 = <&spi1_sleep>;
+    pinctrl-0 = <&spi0_default>;
+    pinctrl-1 = <&spi0_sleep>;
     pinctrl-names = "default", "sleep";
 
     led_strip: ws2812@0 {
