@@ -4,8 +4,8 @@
 #
 # Primary setup (Prospector = the radio/central; see also the nice_oled screen module in west.yml):
 #   - soflechoc_left / soflechoc_right : both halves are BLE peripherals,
-#     OLED shows the nice_oled peripheral screen (battery + crystal animation;
-#     switch to pokemon/spaceman via cmake-args in the include below)
+#     OLED shows the nice_oled peripheral screen: battery %, uptime, link
+#     status + animated spaceman
 #   - soflechoc_dongle_prospector      : Prospector = the only central/USB-HID
 #
 # FALLBACK 1 — no dongle at all:
@@ -22,12 +22,11 @@
 include:
   # ---- primary: Prospector dongle is the central ----
   # nice_oled = zzuse/zmk-nice-oled-zz screen for the 128x32 SSD1306 (see west.yml)
+  # no PERIPHERAL_CRYSTAL: the peripheral animation stays the default spaceman
   - board: nice_nano//zmk
     shield: soflechoc_left nice_oled
-    cmake-args: -DCONFIG_NICE_OLED_PERIPHERAL_CRYSTAL=y
   - board: nice_nano//zmk
     shield: soflechoc_right nice_oled
-    cmake-args: -DCONFIG_NICE_OLED_POKEMON_ANIMATION=y
   - board: xiao_ble//zmk
     shield: soflechoc_dongle prospector_adapter
     snippet: studio-rpc-usb-uart
