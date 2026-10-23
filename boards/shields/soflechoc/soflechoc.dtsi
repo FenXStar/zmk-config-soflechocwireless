@@ -1,10 +1,11 @@
 /*
  * Sofle Choc (PandaKB) shield for ZMK — nice!nano halves + XIAO/Prospector dongle
  *
- * Based on the in-tree ZMK sofle shield, adapted for the Sofle Choc Wireless:
+ * Based on the in-tree ZMK sofle shield, aligned with PandaKB's official
+ * zmk-for-sofle-choc firmware for the Sofle Choc (wireless) kit:
  * - matrix 5 rows x 6 cols per half (COL2ROW), rows on D5..D9
- * - OLED SSD1306 128x32 on I2C
- * - WS2812 per-key RGB via SPI3 (D0/P0.08 on the nice!nano), 30 LEDs per half
+ * - OLED SSD1306 128x32 on I2C (D2/D3)
+ * - WS2812 per-key RGB via SPI3 (LED/RGB pin, P0.06), 29 LEDs per half
  * - EC11 rotary encoders (D21/D20 on the left half, D20/D21 on the right)
  *
  * This base file is shared by all three builds. The keyboard-only pieces
@@ -62,7 +63,7 @@
         compatible = "alps,ec11";
         a-gpios = <&pro_micro 21 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
         b-gpios = <&pro_micro 20 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        steps = <40>;
+        steps = <80>;
         status = "disabled";
     };
 
@@ -70,7 +71,7 @@
         compatible = "alps,ec11";
         a-gpios = <&pro_micro 20 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
         b-gpios = <&pro_micro 21 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        steps = <40>;
+        steps = <80>;
         status = "disabled";
     };
 
@@ -82,21 +83,22 @@
 };
 
 /*
- * WS2812 data line of the Sofle Choc Wireless is wired to the Arduino D0 pin
- * of the nice!nano (P0.08) — P0.06 is the nice!view CS on this PCB, do not
- * use it. Bit-banged GPIO WS2812 is unreliable on nRF52, so drive it through
- * SPI3 (same approach as the in-tree sofle shield for nice!nano).
+ * WS2812 data line of the PandaKB Sofle Choc (wireless) is wired to the
+ * LED/RGB pin of the nice!nano footprint (P0.06 — the same pin the on-board
+ * NeoPixel uses). Bit-banged GPIO WS2812 is unreliable on nRF52, so drive
+ * it through SPI3, exactly like PandaKB's official zmk-for-sofle-choc
+ * firmware does.
  */
 &pinctrl {
     spi3_default: spi3_default {
         group1 {
-            psels = <NRF_PSEL(SPIM_MOSI, 0, 8)>;
+            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>;
         };
     };
 
     spi3_sleep: spi3_sleep {
         group1 {
-            psels = <NRF_PSEL(SPIM_MOSI, 0, 8)>;
+            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>;
             low-power-enable;
         };
     };
@@ -114,7 +116,7 @@
         compatible = "worldsemi,ws2812-spi";
         reg = <0>; /* ignored, but necessary for SPI bindings */
         spi-max-frequency = <4000000>;
-        chain-length = <30>; /* 30 LEDs per half (incl. LED under the encoder) */
+        chain-length = <29>; /* 29 LEDs per half, per PandaKB official FW */
         spi-one-frame = <0x70>;
         spi-zero-frame = <0x40>;
         color-mapping = <LED_COLOR_ID_GREEN LED_COLOR_ID_RED LED_COLOR_ID_BLUE>;
