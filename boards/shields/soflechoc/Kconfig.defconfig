@@ -1,9 +1,9 @@
-if SHIELD_SOFLECHOC_LEFT
-
+# All variants (halves, left_central fallback, dongle) are one keyboard: the
+# BLE name advertised via BT DIS and shown in Studio/OS must match on every
+# build. (Previously the RIGHT shield was missing here, leaving the right
+# half with an empty ZMK_KEYBOARD_NAME / BT device name.)
 config ZMK_KEYBOARD_NAME
 	default "Sofle Choc"
-
-endif
 
 if SHIELD_SOFLECHOC_LEFT || SHIELD_SOFLECHOC_RIGHT
 
@@ -45,8 +45,7 @@ endif
 
 if SHIELD_SOFLECHOC_DONGLE
 
-config ZMK_KEYBOARD_NAME
-	default "Sofle Choc"
+# ZMK_KEYBOARD_NAME default is global above (same "Sofle Choc" name).
 
 config ZMK_SPLIT_ROLE_CENTRAL
 	default y

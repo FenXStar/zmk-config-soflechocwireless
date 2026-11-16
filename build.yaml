@@ -51,6 +51,17 @@ include:
     snippet: studio-rpc-usb-uart
     artifact-name: soflechoc_dongle_nice_nano
 
+  # ---- diagnostic: right half with USB CDC logging (no BLE changes) ----
+  # Flash to the right half, plug USB-C into a PC, open the new COM port
+  # (115200 or just the CDC serial) and press keys: shows whether the matrix
+  # scan produces position events and whether they are sent over GATT.
+  # See docs/re-pairing.md. Not for daily use (sleep off, logging on).
+  - board: nice_nano//zmk
+    shield: soflechoc_right nice_oled
+    snippet: zmk-usb-logging
+    cmake-args: -DCONFIG_ZMK_LOG_LEVEL_DBG=y -DCONFIG_ZMK_SLEEP=n
+    artifact-name: soflechoc_right_diag
+
   # ---- factory-reset images ----
   - board: nice_nano//zmk
     shield: settings_reset
